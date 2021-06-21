@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@500;900&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap');
+
+            :root{
+                font-size: 16px;
+                font-family: 'Comic Sans';
+                --text-primary: #b6b6b6;
+                --text-secondary: #ececec;
+                --bg-primary: #23232e;
+                --bg-secondary: #141418;
+                --transition-speed: 500ms;
+                --main-color: #ff0000;
+                --document-bg: #FFFFFF;
+                --led-desligado: #000000;
+                --led-ligado: #e20000;
+            }
+
+            .title{
+                text-align: center;
+            }
+
+            body {
+                color: black;
+                background-color: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            main {
+                margin-left: 5rem;
+                padding: 1rem;
+            }
+
+            .navbar{
+                position: fixed;
+                background-color: var(--bg-primary);
+                transition: width 200ms ease;
+            }
+        
+            .navbar-nav{
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                height: 100%;
+            }
+
+            .nav-item{
+                width: 100%;
+            }
+
+            .nav-item:last-child {
+                margin-top: auto;
+            }
+            
+            .nav-link{
+                padding-top: 0.2rem;
+                display: flex;
+                align-items: center;
+                height: 5rem;
+                color: var(--text-primary);
+                text-decoration: none;
+                filter: grayscale(100%) opacity(1) brightness(25%) invert(60%);
+                transition: var(--transition-speed);
+            }
+
+            .nav-link:hover{
+                filter: grayscale(0%) opacity(1);
+                background: var(--bg-secondary);
+                color: var(--text-secondary);
+            }
+
+            .nav-link svg{
+                min-width: 2rem;
+                margin: 0 1.5rem;
+            }
+
+            .link-text{
+                font-size: 1.5rem;
+                font-family: 'Big Shoulders Stencil Display', cursive;
+                display: none;
+                margin-left: 1rem;
+            }
+
+            .icon {
+                display: inline-block;
+                width: 2rem;
+                height: 3rem;
+                stroke-width: 0;
+                stroke: currentColor;
+                fill: currentColor;
+            }
+            
+            .icon:hover{
+                transition: var(--transition-speed);
+            }
+            
+            .icon-color{
+                color: var(--main-color);
+            }
+
+            body::-webkit-scrollbar{
+                width: 0.25rem;
+            }
+
+            body::-webkit-scrollbar-track{
+                background: #1e1e24;
+            }
+
+            body::-webkit-scrollbar-thumb{
+                background: #6649b8;
+            }
+            
+            
+            .content{
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                height: 100vh;
+                width: inherit;
+            }
+
+            .content-child{
+                margin-top: 1rem;
+                width: 100%;
+                height: 1.5rem;
+            }
+
+            #input{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 23%;
+            }
+
+            #delay{
+                border: 0.1rem solid #000000;
+                border-radius: 0.5rem;
+                padding-left: 1rem; 
+                width: 100%;
+                margin: 0;
+            }
+
+            #input label{
+                font-family: 'Courier New', Courier, monospace;
+                align-self: flex-start;
+                position: absolute;
+                margin-top: -1.255rem;
+                height: 1.5%;
+                padding: 0.2rem;
+                border-radius: 0.1rem;
+                padding-left: 0.1;
+                background-color: #fffffffe;
+            }
+
+            #delay:focus + label[for="delay"]{
+                color: #910101;
+                margin-top: -2rem;
+                font-size: 0.95rem;
+            }
+
+            #delay:not(:placeholder-shown) + label[for="delay"]{
+                color: #910101;
+                margin-top: -2rem;
+                font-size: 0.95rem;
+                transition: 600ms;
+            }
+
+            .delay:placeholder-shown {
+                color: #808080b9;
+            }
+
+            #input:hover label[for="delay"]{
+                color: #910101;
+                margin-top: -2rem;
+                font-size: 0.95rem;
+                transition: all, 400ms, ease_in, 100ms;
+            }
+
+            .togglebtn {
+                height: 4rem;
+                width: 4rem;
+                border-radius: 1.5rem;
+                justify-self: flex-end;
+                align-self: flex-start;
+                border: 3px solid rgba(0, 0, 0, 0.5);
+            }
+
+            #leds-control {
+                display: grid;
+                gap: 1rem;
+                grid-template-columns: minmax(100px, 1fr) 15% minmax(100px, 1fr);
+                height: 20%;
+            }
+
+            .led{
+                display: flex;
+                flex-direction: column;
+                justify-self: end;
+            }
+
+            .led label{
+                margin-top: -0.6rem;
+                padding-left: 0.4rem;
+                font-size: 1.2rem;
+                font-family: 'Shadows Into Light', cursive;
+            }
+
+            .led svg{
+                width: 3rem;
+                height: 3rem;
+            }
+
+            /*Big Screens*/
+            @media only screen and (min-width: 1000px){
+                .navbar{
+                    top: 0;
+                    width: 5rem;
+                    height: 100vh;
+                }
+
+                .navbar:hover{
+                    width: 16rem;
+                }
+
+                .navbar:hover .link-text{
+                display: block;
+                }
+
+                .navbar:hover .link-text{
+                    display: inline;
+                    transition: opacity var(--transition-speed);
+                }
+            }
+
+            /*Small screens, mobile*/
+            @media only screen and (max-width: 1000px){
+                .navbar{
+                    bottom: 0;
+                    width: 100vw;
+                    height: 5rem;
+                }
+                .navbar-nav{
+                    flex-direction: row;
+                }
+
+                .nav-link{
+                    justify-content: center;
+                }
+
+                main {
+                    margin: 0;
+                }
+
+                #input{
+                    width: 40%;
+                    transition: all, var(--transition-speed);
+                }
+
+                #delay:focus {
+                    outline: 0;
+                    border: 0.2rem solid #6ed4eeee;
+                }
+            }
+
+        </style>
+    </head>
+    <body> <!-- Check symbol id to identify the svg used-->
+        <svg aria-hidden="true" focusable="false" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs>
+                <symbol id="icon-home-solid" viewBox="0 0 36 32">
+                    <path class="icon-color" d="M17.523 9.266l-11.523 9.491v10.243c0 0.552 0.448 1 1 1v0l7.004-0.018c0.55-0.003 0.995-0.449 0.995-1 0 0 0 0 0 0v0-5.982c0-0.552 0.448-1 1-1v0h4c0.552 0 1 0.448 1 1v0 5.977c0 0.001 0 0.002 0 0.003 0 0.552 0.448 1 1 1 0 0 0 0 0 0v0l7.001 0.019c0.552 0 1-0.448 1-1v0-10.25l-11.521-9.484c-0.13-0.105-0.296-0.169-0.478-0.169s-0.349 0.064-0.48 0.17l0.001-0.001zM35.725 15.717l-5.225-4.307v-8.657c0-0.414-0.336-0.75-0.75-0.75v0h-3.5c-0.414 0-0.75 0.336-0.75 0.75v0 4.538l-5.596-4.604c-0.514-0.425-1.18-0.683-1.906-0.683s-1.392 0.258-1.911 0.688l0.005-0.004-15.821 13.029c-0.167 0.139-0.272 0.346-0.272 0.578 0 0.182 0.065 0.349 0.173 0.479l-0.001-0.001 1.594 1.938c0.139 0.168 0.347 0.274 0.579 0.274 0.182 0 0.349-0.065 0.479-0.173l-0.001 0.001 14.701-12.109c0.13-0.105 0.296-0.169 0.478-0.169s0.349 0.064 0.48 0.17l-0.001-0.001 14.702 12.109c0.129 0.107 0.296 0.172 0.478 0.172 0.232 0 0.44-0.105 0.577-0.271l0.001-0.001 1.594-1.938c0.106-0.128 0.171-0.295 0.171-0.476 0-0.234-0.107-0.443-0.276-0.581l-0.001-0.001z"></path>
+                </symbol>
+            </defs>
+        </svg>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 448 512" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <symbol id="icon-microchip" viewBox="0 0 32 32">
+                <path class="icon-color" d="M26 3v26c0 1.657-1.343 3-3 3h-14c-1.657 0-3-1.343-3-3v-26c0-1.657 1.343-3 3-3h14c1.657 0 3 1.343 3 3zM32 6.625v0.75c0 0.207-0.168 0.375-0.375 0.375v0h-1.125v0.375c0 0.207-0.168 0.375-0.375 0.375v0h-2.625v-3h2.625c0.207 0 0.375 0.168 0.375 0.375v0 0.375h1.125c0.207 0 0.375 0.168 0.375 0.375v0zM32 12.625v0.75c0 0.207-0.168 0.375-0.375 0.375v0h-1.125v0.375c0 0.207-0.168 0.375-0.375 0.375v0h-2.625v-3h2.625c0.207 0 0.375 0.168 0.375 0.375v0 0.375h1.125c0.207 0 0.375 0.168 0.375 0.375v0zM32 18.625v0.75c0 0.207-0.168 0.375-0.375 0.375v0h-1.125v0.375c0 0.207-0.168 0.375-0.375 0.375v0h-2.625v-3h2.625c0.207 0 0.375 0.168 0.375 0.375v0 0.375h1.125c0.207 0 0.375 0.168 0.375 0.375v0zM32 24.625v0.75c0 0.207-0.168 0.375-0.375 0.375v0h-1.125v0.375c0 0.207-0.168 0.375-0.375 0.375v0h-2.625v-3h2.625c0.207 0 0.375 0.168 0.375 0.375v0 0.375h1.125c0.207 0 0.375 0.168 0.375 0.375v0zM1.875 23.5h2.625v3h-2.625c-0.207 0-0.375-0.168-0.375-0.375v0-0.375h-1.125c-0.207 0-0.375-0.168-0.375-0.375v0-0.75c0-0.207 0.168-0.375 0.375-0.375v0h1.125v-0.375c0-0.207 0.168-0.375 0.375-0.375v0zM1.875 17.5h2.625v3h-2.625c-0.207 0-0.375-0.168-0.375-0.375v0-0.375h-1.125c-0.207 0-0.375-0.168-0.375-0.375v0-0.75c0-0.207 0.168-0.375 0.375-0.375v0h1.125v-0.375c0-0.207 0.168-0.375 0.375-0.375v0zM1.875 11.5h2.625v3h-2.625c-0.207 0-0.375-0.168-0.375-0.375v0-0.375h-1.125c-0.207 0-0.375-0.168-0.375-0.375v0-0.75c0-0.207 0.168-0.375 0.375-0.375v0h1.125v-0.375c0-0.207 0.168-0.375 0.375-0.375v0zM1.875 5.5h2.625v3h-2.625c-0.207 0-0.375-0.168-0.375-0.375v0-0.375h-1.125c-0.207 0-0.375-0.168-0.375-0.375v0-0.75c0-0.207 0.168-0.375 0.375-0.375v0h1.125v-0.375c0-0.207 0.168-0.375 0.375-0.375v0z"></path>
+            </symbol>
+        </svg>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 448 512" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <symbol id="icon-led" viewBox="0 0 32 32">  
+            <g>
+                <path d="M22.911 -4.083c0-3.99 3.235-7.224 7.225-7.224 3.989 0 7.225 3.235 7.225 7.224v4.083zM18.826 24.618h0.531v7.382h1.060v-7.382h0.53v-6.832h-2.121v6.832zM10.287 24.618h0.53v5.615h1.060v-5.615h0.531v-6.832h-2.121v6.832z"></path>
+                <path id="led-head" d="M22.911 11.308h-14.45v-4.083c0-3.993.235-7.224 7.225-7.224 3.989 0 7.225 3.235 7.225 7.224v4.083z"/>
+                <path id="led-shoulder" d="M6.969 12.407v4.241h18.063v-4.241h-18.063z"></path>
+            </g>
+            <defs>
+                <linearGradient id="MyGradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(90)">
+                  <stop offset="10%" stop-color="#FF0000" stop-opacity="1" />
+                  <stop offset="90%" stop-color="#000000" stop-opacity="1" />
+                </linearGradient>
+              </defs>
+        </symbol>
+        </svg>
+        <nav class="navbar">
+            <ul class="navbar-nav">
+                <!--
+                TODO Implement logo here.
+                Tutorial = "https://youtu.be/biOMz4puGt8"
+                -->
+                <li class="nav-item">
+                    <a onclick="isMobile()" href="#" class="nav-link" id="Home">
+                        <svg class="icon icon-home-solid">
+                            <use xlink:href="#icon-home-solid">
+                            </use>
+                        </svg>
+                        <span class="link-text">Home</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="icon icon-microchip">
+                            <use xlink:href="#icon-microchip">
+                            </use>
+                        </svg>
+                        <span class="link-text">Admin</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <main>
+            <h1 class="title">ESP32 WebServer:</h1>
+            <div class="content">
+                <div id= "input" class="content-child">
+                    <input class="delay" placeholder="delay" type="text" id="delay" onkeydown="inputHandle(this)">
+                        <label class="mf" id="label" for="delay">LED's delay</label>
+                    </input>
+                </div>
+                <div class="content-child" id="leds-control">
+                    <div class="led">
+                        <svg class="icon icon-led-light-lamp-svgrepo-com"><use xlink:href="#icon-led"></use></svg>
+                        <label for="icon-led">Test</label>
+                    </div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </main>
+    </body>
+
+    <script>
+
+        var ws = new WebSocket("ws://192.168.1.27/ws");
+
+        ws.onopen = function (){
+            console.log("Connected");
+        }
+
+        ws.onmessage = function (msg){
+            var m = String(msg.data);
+            if(m.startsWith("read=")){
+                if(m.replace("read=", "") !== "0"){
+                    document.getElementById("led-head").style.fill = "var(--led-ligado)";
+                    document.getElementById("led-shoulder").style.fill = "url(#MyGradient)";
+                }
+                else{
+                    document.getElementById("led-head").style.fill = "var(--led-desligado)";
+                    document.getElementById("led-shoulder").style.fill = "var(--led-desligado)";
+                }
+            }
+            else if(m.startsWith("delay=")){
+                document.getElementById("delay").placeholder = m.replace("delay=", "");
+            }
+        }
+
+        function isMobile(){
+            if(typeof window.orientation !== 'undefined'){
+                alert("mobile");
+                document.getElementsById('Home').style.color = '#FF0000';
+            }
+            else{
+                alert("desktop");
+            }
+        }
+
+        function inputHandle(text){
+            if(event.key === 'Enter'){
+                alertar = true;
+                const http = new XMLHttpRequest();
+                http.open("POST", "http://192.168.1.27/post");
+                http.send(text.value);
+                text.value = "";
+                document.activeElement.blur()
+                
+                http.onreadystatechange = (e) => {
+                    if (http.status == 406 && alertar && http.responseText.length > 0){
+                        alertar = false;
+                        alert(http.responseText);
+                    }
+                }
+            }
+        }
+    </script>
+</html>
