@@ -1,4 +1,4 @@
 #pragma once
 
-#define SSID "YourWiFiSSID"
-#define PASS "YourWiFiPassword"
+#define SSID "catia"
+#define PASS "28062014"
