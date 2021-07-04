@@ -4,6 +4,7 @@
 #include "ESPAsyncWebServer.h"
 #include <ESPmDNS.h>
 #include "Secret.hpp"
+#include "Scheduler.hpp"
 
 #define checkWS(x) if(gclient != nullptr && gclient->status() == WS_CONNECTED){x;}
 #define MAX_USERS 5
@@ -14,7 +15,12 @@ AsyncWebSocket ws("/ws");
 AsyncWebSocketClient* gclient= nullptr;
 
 String Home_page;
-int Delay = 100;
+Scheduler<void(*)(AsyncWebSocketClient* client)> blink([](AsyncWebSocketClient* client){
+	digitalWrite(23, !digitalRead(23));
+	if(client != nullptr && client->status() == WS_CONNECTED && client->canSend()){
+		client->text("read=" + String(digitalRead(23)));
+	}
+}, 250000);
 int Users = 0;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
@@ -63,7 +69,7 @@ void setup() {
 		return;
 	}
 	Home_page = file.readStringUntil('\0');
-	Home_page.replace("placeholder=\"delay\"", "placeholder=\"" + String(Delay) + "\"");
+	Home_page.replace("placeholder=\"delay\"", "placeholder=\"" + String(blink.getInterval()/1000) + "\"");
 	Serial.println("[Server] setting up...");
 	ws.onEvent(onWsEvent);
 	server.addHandler(&ws);
@@ -84,21 +90,19 @@ void setup() {
 			}
 		}
 		if(valid)
-			Delay = temp;
-		Serial.printf("Str_Input = %s | Delay = %d | msg = ", d.c_str(), Delay);
-		Serial.println("delay=" + String(Delay));
-		checkWS(gclient->text("delay=" + String(Delay)));
+			blink = temp * 1000;
+		Serial.printf("Str_Input = %s | Delay = %u | msg = ", d.c_str(), blink.getInterval());
+		Serial.println("delay=" + String(blink.getInterval()));
+		checkWS(gclient->text("delay=" + String(blink.getInterval()/1000)));
 		request->send(200);
 	});
 	server.begin();
 	Serial.println("[Server] Started");
 	pinMode(23, OUTPUT);
+	blink.startCount();
 }
 
 void loop() {
-	digitalWrite(23, !digitalRead(23));
-	if(gclient != nullptr && gclient->status() == WS_CONNECTED && gclient->canSend()){
-		gclient->text("read=" + String(digitalRead(23)));
-	}
-	delay(Delay);
+	if(blink.work())
+		blink.f_work(gclient);
 }
