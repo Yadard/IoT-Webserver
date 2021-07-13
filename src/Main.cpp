@@ -5,23 +5,49 @@
 #include <ESPmDNS.h>
 #include "Secret.hpp"
 #include "Scheduler.hpp"
+#include "LCD.hpp"
 
 #define checkWS(x) if(gclient != nullptr && gclient->status() == WS_CONNECTED){x;}
 #define MAX_USERS 5
-#define DEBUG
+#define BLINK_LED 21
 
 AsyncWebServer server(80); //HTTP Server
 AsyncWebSocket ws("/ws");
 AsyncWebSocketClient* gclient= nullptr;
 
+bool updateStatus = false;
+#define RS (uint8_t)5
+#define RW (uint8_t)16 
+#define ENABLE (uint8_t)17
+#define PW (uint8_t)15
+#define DISPLAY_DELAY() lcd.Screen.moveCursor(0, 0); lcd.print("In: "); lcd.print(blink.getInterval()); lcd.print(" us")
+
+LCD lcd({18, 19, 22, 23}, RW, RS, ENABLE, PW);
 String Home_page;
+
+/*FIXME: the LCD is causing major overhead in low order x<100 ms
+*! Maybe a async programming can solve this.
+*/
 Scheduler<void(*)(AsyncWebSocketClient* client)> blink([](AsyncWebSocketClient* client){
-	digitalWrite(23, !digitalRead(23));
-	if(client != nullptr && client->status() == WS_CONNECTED && client->canSend()){
-		client->text("read=" + String(digitalRead(23)));
+	static bool sendedBounds = false;
+	lcd.Screen.moveCursor(1, 0);
+	lcd.print("El: ");
+	lcd.print(esp_timer_get_time());
+	lcd.print(" us");
+	digitalWrite(BLINK_LED, !digitalRead(BLINK_LED));
+	if(blink.getInterval() >= 70000){
+		if(client != nullptr && client->status() == WS_CONNECTED && client->canSend()){
+			client->text("read=" + String(digitalRead(BLINK_LED)));
+		}
+		sendedBounds = false;
+	}
+	else{
+		if(client != nullptr && client->status() == WS_CONNECTED && client->canSend() && !sendedBounds){
+			client->text("read=1");
+			sendedBounds = true;
+		}
 	}
 }, 250000);
-int Users = 0;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
 	if(type == WS_EVT_CONNECT){
@@ -36,6 +62,9 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
 
 void setup() {
 	Serial.begin(115200);
+	lcd.setup();
+	pinMode(BLINK_LED, OUTPUT);
+	lcd.init(LCD::Screen::Args::SCREEN_2LINE | LCD::Screen::Args::SHOW_DISPLAY | LCD::Screen::Args::SHOW_CURSOR | LCD::Screen::Args::BLIKING_CURSOR);
 	WiFi.begin(SSID, PASS);
 	Serial.printf("[WiFI] Conecting. Pass=%s", PASS);
 	for (size_t i = 0; WiFi.status() != WL_CONNECTED; i++)
@@ -74,7 +103,6 @@ void setup() {
 	ws.onEvent(onWsEvent);
 	server.addHandler(&ws);
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest* request){
-		digitalWrite(23, digitalRead(23));
 		request->send(200, "text/html", Home_page.c_str());
 	});
 	server.on("/post", HTTP_POST, [](AsyncWebServerRequest* request){}, NULL,
@@ -89,8 +117,10 @@ void setup() {
 				valid = false;
 			}
 		}
-		if(valid)
+		if(valid){
 			blink = temp * 1000;
+			updateStatus = true;
+		}
 		Serial.printf("Str_Input = %s | Delay = %u | msg = ", d.c_str(), blink.getInterval());
 		Serial.println("delay=" + String(blink.getInterval()));
 		checkWS(gclient->text("delay=" + String(blink.getInterval()/1000)));
@@ -98,11 +128,16 @@ void setup() {
 	});
 	server.begin();
 	Serial.println("[Server] Started");
-	pinMode(23, OUTPUT);
+	DISPLAY_DELAY();
 	blink.startCount();
+	Serial.println("\n\n\n");
 }
 
 void loop() {
 	if(blink.work())
 		blink.f_work(gclient);
+	if(updateStatus){
+		DISPLAY_DELAY();
+		updateStatus = false;
+	}
 }

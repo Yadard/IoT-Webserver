@@ -1,5 +1,5 @@
-#ifndef Queue_hpp
-#define Queue_hpp
+#ifndef QUEUE_HPP
+#define QUEUE_HPP
 
 #include <Arduino.h>
 
@@ -69,5 +69,7 @@ public:
     uint16_t getSize(); 
 };
 
-#include<header_src/Queue.cpp> 
+//! If you now a prittier way to separate template classes/functions in .hpp and .cpp. Please let me know
+#include "Queue.cpp"
+#define QUEUE_CPP
 #endif

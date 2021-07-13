@@ -1,5 +1,5 @@
 #include "Scheduler.hpp"
-
+#ifndef SCHEDULER_CPP
 template <typename Function>
 bool Scheduler<Function>::isTimeToWork(){
     return esp_timer_get_time() - m_start >= m_interval;
@@ -60,3 +60,4 @@ template <typename Function>
 bool Scheduler<Function>::operator==(uint32_t other){
     return m_interval == other;
 }
+#endif

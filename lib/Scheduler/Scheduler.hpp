@@ -1,12 +1,12 @@
-#ifndef Scheduler_hpp
-#define Scheduler_hpp
+#ifndef SCHEDULER_HPP
+#define SCHEDULER_HPP
 #include<Arduino.h>
 
 template<typename Function>
 class Scheduler{
     Function m_Work;
     uint32_t m_interval;
-    uint32_t m_start;
+    uint64_t m_start;
 public:
     Function f_work;
 
@@ -37,6 +37,7 @@ public:
     bool operator==(uint32_t);
 };
 
-
-#include<header_src/Scheduler.cpp> //Uglyass work around 
+//! If you now a prittier way to separate template classes/functions in .hpp and .cpp. Please let me know
+#include "Scheduler.cpp"
+#define SCHEDULER_CPP
 #endif

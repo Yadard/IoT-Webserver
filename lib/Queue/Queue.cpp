@@ -1,5 +1,6 @@
 #include "Queue.hpp"
 
+#ifndef QUEUE_CPP
 template<class DataType>
 LinkedList<DataType>::LinkedList(){
     head = nullptr;
@@ -161,3 +162,5 @@ template<class DataEntry>
 uint16_t Queue<DataEntry>::getSize(){
     return content.getSize();    
 } 
+
+#endif
