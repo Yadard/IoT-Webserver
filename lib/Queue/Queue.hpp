@@ -3,23 +3,6 @@
 
 #include <Arduino.h>
 
-#ifdef TRACK_MEMORY
-size_t memory_usage = 0;
-
-void* operator new(size_t size){
-    Serial.printf("[LinkedList] allocanting %llu bytes\n", size);
-    memory_usage += size;
-    printf("[Dynamic Memory] current usage = %llu bytes\n", memory_usage);
-    return malloc(size);
-}
-
-void operator delete(void* memory, size_t size){
-    Serial.printf("[LinkedList] freeing %llu bytes\n", size);
-    Serial.printf("[Dynamic Memory] current usage = %llu bytes\n", memory_usage);
-    free(memory);
-}
-#endif
-
 template<class DataType>
 struct Node{
     DataType data;

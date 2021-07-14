@@ -1,7 +1,10 @@
 #ifndef LCD_HPP
 
-#include "Arduino.h"
+#include <Arduino.h>
 #define LCD_HPP
+
+extern size_t MEMORYUSAGE;
+
 
 class LCD{
 public:
@@ -13,24 +16,52 @@ private:
     struct DataBus{
         friend class LCD;
 
+        #ifdef UNIT_TEST
+        static uint32_t _ID;
+        uint32_t id;
+        #endif
+
         const pin* pins;
         const enum class Mode{M4bit, M8bit} mode;
 
-        DataBus(pin d7, pin d6, pin d5, pin d4) : pins(new pin[4] {d7, d6, d5, d4}), mode(Mode::M4bit) {}
-        DataBus(pin d7, pin d6, pin d5, pin d4, pin d3, pin d2, pin d1, pin d0) : pins(new pin[8] {d7, d6, d5, d4, d3, d2, d1, d0}), mode(Mode::M8bit) {}
+        DataBus(pin d7, pin d6, pin d5, pin d4) : pins(new pin[4] {d7, d6, d5, d4}), mode(Mode::M4bit) {
+            #ifdef UNIT_TEST
+            id = _ID++;
+            size_t size = sizeof(pins);
+            MEMORYUSAGE += size;
+            Serial.printf("Allocating %u bytes for LCD.id == %u, Current memory usage = %u\n", size, id, MEMORYUSAGE);
+            #endif
+        }
+
+        DataBus(pin d7, pin d6, pin d5, pin d4, pin d3, pin d2, pin d1, pin d0) : pins(new pin[8] {d7, d6, d5, d4, d3, d2, d1, d0}), mode(Mode::M8bit) {
+            #ifdef UNIT_TEST
+            id = _ID++;
+            size_t size = sizeof(pins);
+            MEMORYUSAGE += size;
+            Serial.printf("Allocating %u bytes for LCD.id == %u, Current memory usage = %u\n", size, id, MEMORYUSAGE);
+            #endif
+        }
 
         DataBus(DataBus& other) : mode(other.mode) {
             const uint8_t size = other.mode == Mode::M8bit ? 8 : 4;
             pins = new pin[size];
             memcpy((void *)pins, other.pins, size * sizeof(pin));
-            for (size_t i = 0; i < size; i++)
-            {
-                Serial.printf("[%d] = pin %hu\n", i, pins[i]);
-            }
-            
+
+            #ifdef UNIT_TEST
+            id = _ID++;
+            size_t m_size = sizeof(pins);
+            MEMORYUSAGE += m_size;
+            Serial.printf("Allocating %u bytes for LCD.id == %u, Current memory usage = %u\n", size, id, MEMORYUSAGE);
+            #endif
         }
 
         ~DataBus(){
+            #ifdef UNIT_TEST
+            size_t size = sizeof(pins);
+            MEMORYUSAGE -= size;
+            Serial.printf("Freeing %u bytes from LCD.id == %u, Current memory usage = %u\n", size, id, MEMORYUSAGE);
+            #endif
+
             delete[] pins;
         }
 

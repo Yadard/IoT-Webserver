@@ -15,8 +15,13 @@ const LCD::pin pinos[] = {18, 19, 22, 23};
 * But on the src/main.cpp, this error doesn't appear, and it works fine when compiled. Quite strange.
 * If you know why send me a message.'
 */
+
 LCD lcd({18,19,22,23}, RW, RS, ENABLE, PW);
 char message[50];
+
+void setUp(){
+    Serial.begin(115200);
+}
 
 void LCDSetup_initializedPinsToLOW(void){
     std::pair<LCD::pin, bool> pins[] = {{18, true}, {19, true}, {22, true}, {23, true}, {PW, true}, {RW, true}, {RS, true}, {ENABLE, true}};
@@ -46,15 +51,30 @@ void LCDSendHalf_IsCorrect(){
     }
 }
 
+void LCD_MemoryLeaks(void){
+    size_t before = MEMORYUSAGE;
+    {
+    LCD lcd({18,19,22,23}, RW, RS, ENABLE, PW);
+    }
+    TEST_ASSERT_TRUE_MESSAGE(MEMORYUSAGE == before, "Memory leak in one instance test!\n");
+    const size_t testAmount = 10;
+    for (size_t i = 0; i < testAmount; i++)
+    {
+        LCD lcd({18,19,22,23}, RW, RS, ENABLE, PW);
+    }
+    sprintf(message, "Memory leak when instanciating %u LCD classes", testAmount);
+    TEST_ASSERT_TRUE_MESSAGE(MEMORYUSAGE == before, message);
+}
+
 //TODO: implement 8-bit mode testing.
 
 void setup(){
     delay(2000);
-    Serial.begin(115200);
 
     UNITY_BEGIN();
     RUN_TEST(LCDSetup_initializedPinsToLOW);
     RUN_TEST(LCDSendHalf_IsCorrect);
+    RUN_TEST(LCD_MemoryLeaks);
     UNITY_END();
 }
 

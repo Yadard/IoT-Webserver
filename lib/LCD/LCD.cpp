@@ -1,5 +1,10 @@
 #include "LCD.hpp"
 
+#ifdef UNIT_TEST
+size_t MEMORYUSAGE = 0;
+uint32_t LCD::DataBus::_ID = 0;
+#endif
+
 LCD::DataBus::Iterator LCD::DataBus::begin(){
     return Iterator(pins);
 }
