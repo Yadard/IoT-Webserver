@@ -18,7 +18,7 @@ AsyncWebSocketClient* gclient= nullptr;
 bool updateStatus = false;
 #define RS (uint8_t)5
 #define RW (uint8_t)16 
-#define ENABLE (uint8_t)17
+#define ENABLE (uint8_t)17	
 #define PW (uint8_t)15
 #define DISPLAY_DELAY() lcd.Screen.moveCursor(0, 0); lcd.print("In: "); lcd.print(blink.getInterval()); lcd.print(" us")
 
