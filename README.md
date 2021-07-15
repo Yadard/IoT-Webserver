@@ -1,6 +1,6 @@
 # IoT-Webserver
 A webserver hosted on my local network with a esp32.
-Right now is glorified blinking LED with networking nightmares.
+Right now is a glorified blinking LED with networking nightmares.
 
 Physical setup:
 ![Protoboard](/images/Protoboard.jpg)
